@@ -10,6 +10,8 @@ class SearchTimeout(Exception):
     pass
 
 
+
+
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
@@ -125,6 +127,25 @@ class MinimaxPlayer(IsolationPlayer):
     minimax to return a good move before the search time limit expires.
     """
 
+    def terminal_test(self, gameState):
+        return not bool(gameState.get_legal_moves())
+
+    def min_value(self, gameState):
+        if self.terminal_test(gameState):
+            return 1
+        v = float('inf')
+        for m in gameState.get_legal_moves():
+            v = min(v, self.max_value(gameState.forecast_move(m)))
+        return v
+
+    def max_value(self, gameState):
+        if self.terminal_test(gameState):
+            return -1
+        v = float('-inf')
+        for m in gameState.get_legal_moves():
+            v = max(v, self.min_value(gameState.forecast_move(m)))
+        return v
+
     def get_move(self, game, time_left):
         """Search for the best move from the available legal moves and return a
         result before the time limit expires.
@@ -212,8 +233,10 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # TODO need to check the evaluation function
+        # Base code is ok
+        return max(game.get_legal_moves(),
+            key=lambda m: self.min_value(game.forecast_move(m)))
 
 
 class AlphaBetaPlayer(IsolationPlayer):
