@@ -1,6 +1,12 @@
 
 # Created by https://www.gitignore.io/api/python
 
+*.zip
+*.json
+
+.idea/
+.vscode/
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
