@@ -40,13 +40,14 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
     if game.is_winner(player) or game.is_loser(player):
-        return game.utility(player) 
+        return game.utility(player)
+
     moves = len(game.get_legal_moves())
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
 
-    return float(moves - opp_moves + centrality(game, game.get_player_location(player)))
+    return float(moves - opp_moves)
 
-def custom_score_2(game, player):
+def custom_score_2(game, player, weight=2):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
 
@@ -68,8 +69,12 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_winner(player) or game.is_loser(player):
+        return game.utility(player)
+    moves = len(game.get_legal_moves())
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    return float(moves - weight * opp_moves)
 
 
 def custom_score_3(game, player):
@@ -94,8 +99,12 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_winner(player) or game.is_loser(player):
+        return game.utility(player)
+    moves = len(game.get_legal_moves())
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    return float(moves + centrality(game, game.get_player_location(player) * opp_moves))
 
 
 class IsolationPlayer:
@@ -300,7 +309,9 @@ class AlphaBetaPlayer(IsolationPlayer):
         self.time_left = time_left
 
         move = (-1, -1)
-        for i in range(1, 10000):
+        i = 0
+        while True:
+            i += 1
             try:
                 move = self.alphabeta(game, i)
             except SearchTimeout:
@@ -370,11 +381,13 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         minmax, is_alpha, value = self.ab_value(game)
 
-        for move in game.get_legal_moves():
+        possible_moves = game.get_legal_moves() if is_alpha else game.get_legal_moves(game.get_opponent(self))
+
+        for move in possible_moves:
             # Here is the same as MiniMax
             next_move = game.forecast_move(move)
-            possible_move, score = self.move(next_move, depth - 1, \
-                                                    alpha, beta)
+            possible_move, score = self.move(next_move, depth - 1, alpha, beta)
+
             if score == minmax(value, score):
                 best_move, value = move, score
             # But Adding AB part
